@@ -17,54 +17,52 @@ var id = 1
 type Schedule struct {
 	nextID           int
 	employeeId       int
-	date             time.Weekday
 	startTime        time.Time
 	endTime          time.Time
 	totalWorkedHours time.Duration
 }
 
-var works = make(map[int]Schedule)
+var Works = make(map[int]Schedule)
 var nextID = 1
 
 func main() {
 
 	fmt.Println("Start application")
 	fmt.Println("##################")
-	fmt.Println("List of actions:")
-	fmt.Println("1. Add new Employee")
-	fmt.Println("2. Change employee data")
-	fmt.Println("3. Show employee list")
-	fmt.Println("4. Add new work information")
-	fmt.Println("5. Show work information for employee")
-	fmt.Println("6. Show work information for date")
-	fmt.Println("7. Show total working hours for all employees")
-	fmt.Println("8. Exit")
+	showAllActions()
 	fmt.Println("##################")
 
 	for {
 		var selectAction int
+
+		fmt.Print("To show list of actions input 1:\n")
 		fmt.Print("Select action: ")
 		fmt.Scanln(&selectAction)
 
 		switch selectAction {
 		case 1:
-			fmt.Println("1. Add new Employee")
-			addEmployee()
+			showAllActions()
 		case 2:
-			fmt.Println("2. Show employee list")
-			showEmployeesList()
+			fmt.Println("2. Add new Employee")
+			addEmployee()
 		case 3:
-			fmt.Println("3. Change employee data")
-			changeEmployeeData()
+			fmt.Println("3. Show employee list")
+			showEmployeesList()
 		case 4:
-			fmt.Println("4. Add new work information")
+			fmt.Println("4. Change employee data")
+			changeEmployeeData()
 		case 5:
 			fmt.Println("5. Show work information for employee")
+			showEmployeeByID()
 		case 6:
-			fmt.Println("6. Show work information for date")
+			fmt.Println("6. Add new work information")
+			inputWorkTime()
 		case 7:
-			fmt.Println("7. Show total working hours for all employees")
+			fmt.Println("7. Show work information for week")
+			workDurationCalculation()
 		case 8:
+			showScheduleTable()
+		case 9:
 			fmt.Println("Your choice is to exit program.")
 			fmt.Println("See you next time. Thanks!")
 			return
@@ -77,6 +75,19 @@ func main() {
 }
 
 // Functions:
+func showAllActions() {
+	fmt.Println("List of actions:")
+	fmt.Println("1. Show all actions")
+	fmt.Println("2. Add new Employee")
+	fmt.Println("3. Change employee data")
+	fmt.Println("4. Show employee list")
+	fmt.Println("5. Show work information for employee")
+	fmt.Println("6. Add new work information")
+	fmt.Println("7. Show work information for date")
+	fmt.Println("8. Show total working hours for all employees")
+	fmt.Println("9. Exit")
+
+}
 
 // Введення ім'я співробітника.
 func addEmployee() {
@@ -93,6 +104,9 @@ func addEmployee() {
 }
 
 func showEmployeesList() {
+	if isNoEmployee(employees) {
+		fmt.Println("Empty list add first employee! Action #2")
+	}
 	fmt.Println("Employees: #, Name, Surname")
 	for id, employee := range employees {
 		fmt.Printf("# %v %v  %v \n", id, employee.name, employee.surname)
@@ -107,62 +121,107 @@ func changeEmployeeData() {
 	//fmt.Println("3. Change employee data")
 	isNoEmployee(employees)
 	if isNoEmployee(employees) {
-		fmt.Println("Empty list add new task!")
+		fmt.Println("Empty list of users!")
 	}
-	showEmployeesList()
+	//showEmployeesList()
 	var id int
-	fmt.Print("Enter task ID for complete task: ")
+	fmt.Print("Enter your id: ")
 	fmt.Scanln(&id)
 	if employee, exists := employees[id]; exists {
 		var newName string
-		var newSurmane string
-		fmt.Print("Enter new name: ")
+		var newSurname string
+		fmt.Print("Enter new Name: ")
 		fmt.Scanln(&newName)
-		fmt.Print("Enter new surname: ")
-		fmt.Scanln(&newSurmane)
+		fmt.Print("Enter new Surname: ")
+		fmt.Scanln(&newSurname)
 		employee.name = newName
-		employee.surname = newSurmane
+		employee.surname = newSurname
 		employees[id] = employee
 		fmt.Printf("# %v %v  %v \n", id, employee.name, employee.surname)
 		fmt.Println("Employee data up to date.")
 	} else {
-		fmt.Printf("Incorrect task # %v id.", id)
+		fmt.Printf("Incorrect employee's # %v id. \n", id)
 	}
 
 }
 
-//Введення часу приходу та відходу в форматі годин та хвилин. - ідентифікація виконується через id користувача та вивделення даних для підтвердження
-
-func inputWorktime() {
-	fmt.Println("Entre your id")
-
+func showEmployeeByID() {
+	fmt.Print("Enter user id for additional information: ")
+	fmt.Scanln(&id)
+	employee, exists := employees[id]
+	if exists {
+		fmt.Printf("ID: %d, Name: %s, Surname: %s \n", employee.id, employee.name, employee.surname)
+	} else {
+		fmt.Printf("Incorrect employee # %v id.", id)
+	}
 }
 
-//Розрахунок відпрацьованих годин за день
-//workDurationCalculation
-//Збереження та вивід загальної кількості відпрацьованих годин за тиждень.
-//collectTotalWorkingHours
-// вивід поточної інформації
-//showCurrentWorkingHours
-// збереження інформації про підпрацьовані години для співробітника - може бути реалізована як части функції введення даних
+func inputWorkTime() {
+	var employeeId int
+	var startTimeStr string
+	var endTimeStr string
+	var WorkedHours time.Duration
 
-// перевірка на наявність співробітнка
+	fmt.Print("Enter your id: ")
+	fmt.Scanln(&employeeId)
 
-//
+	//fmt.Print("Enter start of work: ")
+	//_, _ = fmt.Scanln(&startTime)
+	fmt.Print("Enter start of work (YYYY:MM:DD:HH:MM format): ")
+	fmt.Scan(&startTimeStr)
+	startTime, err := time.Parse("2006:01:02:15:04", startTimeStr)
+	if err != nil {
+		fmt.Println("Invalid time format. Please use HH:MM format.")
+		return
+	}
+	fmt.Print("Enter end of work (YYYY:MM:DD:HH:MM format): ")
+	fmt.Scan(&endTimeStr)
+	endTime, _ := time.Parse("2006:01:02:15:04", endTimeStr)
+	if err != nil {
+		fmt.Println("Invalid time format. Please use HH:MM format.")
+		return
+	}
+	WorkedHours = endTime.Sub(startTime)
+	Works[nextID] = Schedule{nextID: nextID, employeeId: employeeId, startTime: startTime, endTime: endTime, totalWorkedHours: WorkedHours}
+	fmt.Printf(" Employee %v worked for %v \n ", employeeId, WorkedHours)
+	fmt.Printf("Enter line: #%v Employee id %v worked from %v to %v for duration of %v Hours and minutes \n", nextID, employeeId, startTime.Format("15:04"), endTime.Format("15:04"), WorkedHours)
+	nextID++
+}
 
-//
-//Створіть програму, яка дозволяє вводити час приходу та відходу співробітників, а потім розраховує відпрацьовані години за день. Програма повинна також зберігати загальну кількість відпрацьованих годин за тиждень.
-//Функціональні вимоги:
-//Введення ім'я співробітника.
-//Введення часу приходу та відходу в форматі годин та хвилин.
-//Розрахунок відпрацьованих годин за день.
-//Збереження та вивід загальної кількості відпрацьованих годин за тиждень.
-//Обмеження:
-//Дозволено використання наступних пакетів
-//fmt
-//strings
-//strconv
-//time
-//bufio/os - тільки для вводу тексту, опціонально
-//Вивантаження дз:
-//Склонувати репозиторій hillel-go, який закріпленний до уроку, у свій аккаунт, запушити вашу роботу в ваш клонований репозиторій та створити pull request у моему репозиторії. Надати лінк на pull request.
+func workDurationCalculation() {
+
+	totalHours := make(map[int]time.Duration)
+
+	for _, work := range Works {
+		totalHours[work.employeeId] += work.totalWorkedHours
+	}
+
+	fmt.Println("Total hours for user:")
+	for employeeID, hours := range totalHours {
+		fmt.Printf("Employee #%d: %v\n", employeeID, hours)
+	}
+}
+
+func showScheduleTable() {
+	if isEmpty(Works) {
+		fmt.Println("Add first work in table")
+	}
+	fmt.Println("Schedule Table: #, Employee Id, StartTime, EndTime, WorkingHours")
+	for _, schedule := range Works {
+		fmt.Printf("# %v user %v  startTime %v end time %v work hours %v \n", schedule.nextID, schedule.employeeId, schedule.startTime.Format("15:04"), schedule.endTime.Format("15:04"), schedule.totalWorkedHours)
+	}
+}
+func isEmpty(works map[int]Schedule) bool {
+	return len(works) == 0
+}
+
+/*	fmt.Println("############### - Full list ")
+	fmt.Println("Employees: #, Name, Surname")
+	for id, employee := range employees {
+		if id == id {
+			// Трошки говнокодіку - але перевірив як цікаво працює =)
+			fmt.Printf("# %v %v %v\n", id, employee.name, employee.surname)
+			//
+			break
+		}
+	}*/

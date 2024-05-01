@@ -215,6 +215,7 @@ func isEmpty(works map[int]Schedule) bool {
 	return len(works) == 0
 }
 
+// new function
 /*	fmt.Println("############### - Full list ")
 	fmt.Println("Employees: #, Name, Surname")
 	for id, employee := range employees {

@@ -79,8 +79,8 @@ func showAllActions() {
 	fmt.Println("List of actions:")
 	fmt.Println("1. Show all actions")
 	fmt.Println("2. Add new Employee")
-	fmt.Println("3. Change employee data")
-	fmt.Println("4. Show employee list")
+	fmt.Println("3. Show employee list")
+	fmt.Println("4. Change employee data")
 	fmt.Println("5. Show work information for employee")
 	fmt.Println("6. Add new work information")
 	fmt.Println("7. Show work information for date")
@@ -107,19 +107,20 @@ func showEmployeesList() {
 	if isNoEmployee(employees) {
 		fmt.Println("Empty list add first employee! Action #2")
 	}
+	return //resolve
+
 	fmt.Println("Employees: #, Name, Surname")
 	for id, employee := range employees {
 		fmt.Printf("# %v %v  %v \n", id, employee.name, employee.surname)
 	}
 }
 
-func isNoEmployee(employees map[int]Employee) bool {
-	return len(employees) == 0
+func isNoEmployee(m map[int]Employee) bool {
+	return len(m) > 0
 }
 
 func changeEmployeeData() {
 	//fmt.Println("3. Change employee data")
-	isNoEmployee(employees)
 	if isNoEmployee(employees) {
 		fmt.Println("Empty list of users!")
 	}
@@ -139,10 +140,7 @@ func changeEmployeeData() {
 		employees[id] = employee
 		fmt.Printf("# %v %v  %v \n", id, employee.name, employee.surname)
 		fmt.Println("Employee data up to date.")
-	} else {
-		fmt.Printf("Incorrect employee's # %v id. \n", id)
 	}
-
 }
 
 func showEmployeeByID() {
@@ -151,8 +149,6 @@ func showEmployeeByID() {
 	employee, exists := employees[id]
 	if exists {
 		fmt.Printf("ID: %d, Name: %s, Surname: %s \n", employee.id, employee.name, employee.surname)
-	} else {
-		fmt.Printf("Incorrect employee # %v id.", id)
 	}
 }
 
@@ -160,7 +156,7 @@ func inputWorkTime() {
 	var employeeId int
 	var startTimeStr string
 	var endTimeStr string
-	var WorkedHours time.Duration
+	var workedHours time.Duration
 
 	fmt.Print("Enter your id: ")
 	fmt.Scanln(&employeeId)
@@ -176,15 +172,15 @@ func inputWorkTime() {
 	}
 	fmt.Print("Enter end of work (YYYY:MM:DD:HH:MM format): ")
 	fmt.Scan(&endTimeStr)
-	endTime, _ := time.Parse("2006:01:02:15:04", endTimeStr)
+	endTime, err := time.Parse("2006:01:02:15:04", endTimeStr)
 	if err != nil {
 		fmt.Println("Invalid time format. Please use HH:MM format.")
 		return
 	}
-	WorkedHours = endTime.Sub(startTime)
-	Works[nextID] = Schedule{nextID: nextID, employeeId: employeeId, startTime: startTime, endTime: endTime, totalWorkedHours: WorkedHours}
-	fmt.Printf(" Employee %v worked for %v \n ", employeeId, WorkedHours)
-	fmt.Printf("Enter line: #%v Employee id %v worked from %v to %v for duration of %v Hours and minutes \n", nextID, employeeId, startTime.Format("15:04"), endTime.Format("15:04"), WorkedHours)
+	workedHours = endTime.Sub(startTime)
+	Works[nextID] = Schedule{nextID: nextID, employeeId: employeeId, startTime: startTime, endTime: endTime, totalWorkedHours: workedHours}
+	fmt.Printf(" Employee %v worked for %v \n ", employeeId, workedHours)
+	fmt.Printf("Enter line: #%v Employee id %v worked from %v to %v for duration of %v Hours and minutes \n", nextID, employeeId, startTime.Format("15:04"), endTime.Format("15:04"), workedHours)
 	nextID++
 }
 
@@ -206,6 +202,7 @@ func showScheduleTable() {
 	if isEmpty(Works) {
 		fmt.Println("Add first work in table")
 	}
+	return // resolve
 	fmt.Println("Schedule Table: #, Employee Id, StartTime, EndTime, WorkingHours")
 	for _, schedule := range Works {
 		fmt.Printf("# %v user %v  startTime %v end time %v work hours %v \n", schedule.nextID, schedule.employeeId, schedule.startTime.Format("15:04"), schedule.endTime.Format("15:04"), schedule.totalWorkedHours)

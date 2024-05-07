@@ -89,7 +89,6 @@ func showAllActions() {
 
 }
 
-// Введення ім'я співробітника.
 func addEmployee() {
 	var name string
 	var surname string
@@ -129,22 +128,22 @@ func changeEmployeeData() {
 	var id int
 	fmt.Print("Enter your id: ")
 	fmt.Scanln(&id)
-	if employee, exists := employees[id]; exists {
-		var newName string
-		var newSurname string
-
-		fmt.Print("Enter new Name: ")
-		fmt.Scanln(&newName)
-		fmt.Print("Enter new Surname: ")
-		fmt.Scanln(&newSurname)
-
-		employee.name = newName
-		employee.surname = newSurname
-		employees[id] = employee
-
-		fmt.Printf("# %v %v  %v \n", id, employee.name, employee.surname)
-		fmt.Println("Employee data up to date.")
+	employee, exists := employees[id]
+	if !exists {
+		fmt.Println("Employee not found")
+		return
 	}
+	var newName string
+	var newSurname string
+
+	fmt.Print("Enter new Name: ")
+	fmt.Scanln(&newName)
+	fmt.Print("Enter new Surname: ")
+	fmt.Scanln(&newSurname)
+
+	employee.name = newName
+	employee.surname = newSurname
+	employees[id] = employee
 }
 
 func showEmployeeByID() {
